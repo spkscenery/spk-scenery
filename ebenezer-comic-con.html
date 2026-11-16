@@ -277,23 +277,69 @@
 
 <section id="bts-section">
 
-  <div class="img-full" id="bts1">
-    <img src="assets/SPK-Ebenezer-Preview-001.jpg" alt="Ebenezer Comic Con BTS">
+  <div class="img-full">
+    <img src="assets/SPK-Ebenezer-BTS-210.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async">
   </div>
 
-  <div class="img-pair" id="bts23">
-    <div><img src="assets/SPK-Ebenezer-Preview-002.jpg" alt="Ebenezer Comic Con BTS"></div>
-    <div><img src="assets/SPK-Ebenezer-Preview-003.jpg" alt="Ebenezer Comic Con BTS"></div>
+  <div class="img-three">
+    <div><img src="assets/SPK-Ebenezer-Preview-014.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-Preview-015.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-301.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
   </div>
 
-  <div class="img-full" id="bts4">
-    <img src="assets/SPK-Ebenezer-BTS-291.jpg" alt="Ebenezer Comic Con BTS">
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-Preview-004.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-Preview-006.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
   </div>
 
-  <div class="img-three" id="bts567">
-    <div><img src="assets/SPK-Ebenezer-BTS-297.jpg" alt="Ebenezer Comic Con BTS"></div>
-    <div><img src="assets/SPK-Ebenezer-BTS-285.jpg" alt="Ebenezer Comic Con BTS"></div>
-    <div><img src="assets/SPK-Ebenezer-BTS-317.jpg" alt="Ebenezer Comic Con BTS"></div>
+  <div class="img-full">
+    <img src="assets/SPK-Ebenezer-BTS-291.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async">
+  </div>
+
+  <div class="img-three">
+    <div><img src="assets/SPK-Ebenezer-BTS-297.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-299.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-Preview-005.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-Preview-008.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-Preview-012.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-BTS-317.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-049.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-BTS-285.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-268.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-BTS-296.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-300.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-full">
+    <img src="assets/SPK-Ebenezer-BTS-078.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async">
+  </div>
+
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-BTS-008.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-009.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-three">
+    <div><img src="assets/SPK-Ebenezer-BTS-031.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-197.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-063.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+  </div>
+
+  <div class="img-pair">
+    <div><img src="assets/SPK-Ebenezer-BTS-055.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
+    <div><img src="assets/SPK-Ebenezer-BTS-058.jpg" alt="Ebenezer Comic Con BTS" loading="lazy" decoding="async"></div>
   </div>
 
 </section>
@@ -319,10 +365,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const ST = { start: 'top 88%', toggleActions: 'play none none none' };
 
-  gsap.from('#bts1', { opacity: 0, y: rm ? 0 : 30, duration: 0.9, ease: 'power2.out', scrollTrigger: { trigger: '#bts1', ...ST } });
-  gsap.from('#bts23 > div', { opacity: 0, y: rm ? 0 : 30, duration: 0.85, ease: 'power2.out', stagger: rm ? 0 : 0.12, scrollTrigger: { trigger: '#bts23', ...ST } });
-  gsap.from('#bts4', { opacity: 0, y: rm ? 0 : 30, duration: 0.9, ease: 'power2.out', scrollTrigger: { trigger: '#bts4', ...ST } });
-  gsap.from('#bts567 > div', { opacity: 0, y: rm ? 0 : 30, duration: 0.85, ease: 'power2.out', stagger: rm ? 0 : 0.1, scrollTrigger: { trigger: '#bts567', ...ST } });
+  gsap.utils.toArray('#bts-section > div').forEach(row => {
+    const full = row.classList.contains('img-full');
+    gsap.from(full ? row : row.children, {
+      opacity: 0, y: rm ? 0 : 30,
+      duration: full ? 0.9 : 0.85, ease: 'power2.out',
+      stagger: rm ? 0 : 0.1,
+      scrollTrigger: { trigger: row, ...ST },
+    });
+  });
 
   ScrollTrigger.refresh();
 });
