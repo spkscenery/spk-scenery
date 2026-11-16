@@ -491,14 +491,33 @@
       transform: translateX(-50%) scale(0.97);
       transition: opacity 0.2s, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
     }
-    #contact-success {
+    /* Thank-you state: labels, fields and heading are swapped for the hand-lettered note */
+    .check-thanks {
       display: none;
-      font-family: var(--font);
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--powdered);
-      text-transform: uppercase;
+      position: absolute;
+      top: 50.5%;
+      left: 50%;
+      width: 78%;
+      height: auto;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .check.is-sent .check-header,
+    .check.is-sent .lbl,
+    .check.is-sent .fld,
+    .check.is-sent .fld-select,
+    .check.is-sent .fld-textarea,
+    .check.is-sent .check-submit { display: none; }
+    .check.is-sent .check-thanks {
+      display: block;
+      animation: thanks-in 0.7s cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+    @keyframes thanks-in {
+      from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .check.is-sent .check-thanks { animation: none; }
     }
 
     /* ── BRANDS CAROUSEL ────────────────────────────────────── */
@@ -935,9 +954,9 @@
     <input class="fld" name="email" type="email" placeholder="your@email.com" style="top:62.39%;left:32.15%" required>
 
     <button class="check-submit" type="submit">Send Order</button>
-  </form>
 
-  <p id="contact-success">Order received — we'll be in touch!</p>
+    <img class="check-thanks" src="assets/ThanksForYourOrder.png" alt="Thanks for your order! We'll be in touch!">
+  </form>
 </section>
 
 <!-- ── BRANDS CAROUSEL ────────────────────────────────────────── -->
@@ -1220,7 +1239,6 @@ window.addEventListener('load', () => {
 /* ── CONTACT FORM ────────────────────────────────────────────── */
 (function() {
   var form = document.getElementById('contact-form');
-  var success = document.getElementById('contact-success');
   if (!form) return;
   var sel = form.querySelector('.fld-select');
   if (sel) {
@@ -1237,8 +1255,7 @@ window.addEventListener('load', () => {
       headers: { 'Accept': 'application/json' }
     }).then(function(r) {
       if (r.ok) {
-        form.style.display = 'none';
-        success.style.display = 'block';
+        form.classList.add('is-sent');
       } else {
         return r.json().then(function(d) {
           alert(d.errors ? d.errors.map(function(e){return e.message}).join(', ') : 'Something went wrong. Try emailing hello@spkscenery.com');
