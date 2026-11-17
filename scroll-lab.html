@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SPK Scenery — Stage Design &amp; Fabrication, NYC</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js" defer></script>
+
+  <style>
+    :root {
+      --liberty-blue: #0D182C;
+      --charcoal:     #1A1A1C;
+      --powdered:     #F8F3E8;
+      --kimchi:       #F24D00;
+      --sapphire:     #2D71E0;
+      --biltmore-buff:#E5CC9F;
+      --font: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html  { scroll-behavior: smooth; }
+    body  { background: var(--charcoal); color: var(--powdered); overflow-x: hidden; }
+    img   { display: block; }
+    a     { text-decoration: none; }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    #site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    #site-nav.nav-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Light variant — over cream/powdered sections */
+    #site-nav.nav-light .nav-brand img { filter: brightness(0); }
+    #site-nav.nav-light .nav-links a:not(.nav-cta) { color: var(--liberty-blue); }
+    .nav-brand img {
+      height: 48px;
+      width: auto;
+      max-width: none;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--powdered);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--kimchi); }
+    .nav-cta {
+      background: var(--kimchi) !important;
+      color: var(--powdered) !important;
+      padding: 10px 24px;
+      transition: opacity 0.2s, transform 80ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .nav-cta:hover { opacity: 0.85; }
+    .nav-cta:active {
+      transform: scale(0.97);
+      transition: opacity 0.2s, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    /* ── HERO — fixed video + mask ───────────────────────────── */
+    #reel-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: 1;
+      margin: 0; padding: 0;
+      max-width: none; max-height: none;
+    }
+    /* Window hole — transparent rect punching through the charcoal mask.
+       box-shadow floods the rest of the screen with charcoal. */
+    #window-hole {
+      position: fixed;
+      top: 0; left: 0;
+      width: 0; height: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: transparent;
+      box-shadow: 0 0 0 100vmax #1A1A1C;
+    }
+
+    /* ── HERO — pinned scroll container ──────────────────────── */
+    #hero-wrapper {
+      position: relative;
+      width: 100%;
+      height: calc(8000px + 100vh);
+    }
+    #hero-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 3;
+      will-change: transform;
+    }
+
+    /* Storefront icon — 1800px native; scaled down so browser never upscales */
+    #icon-group {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.105);
+      transform-origin: center center;
+      z-index: 3;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    #icon-group img {
+      width: 1800px;
+      height: auto;
+      max-width: none;
+    }
+
+    /* Reel logo — fades in after storefront disappears */
+    #reel-logo {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #reel-logo img {
+      width: min(240px, 31vw);
+      height: auto;
+      max-width: none;
+      object-fit: contain;
+    }
+    .reel-logo-stack { position: relative; }
+    #reel-logo-sub {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 22px;
+      white-space: nowrap;
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--powdered);
+      text-shadow: 0 1px 14px rgba(0,0,0,0.55);
+    }
+
+    /* Curtain — rises from bottom; checkerboard leads, cream fills body */
+    #hero-curtain {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 0;
+      overflow: hidden;
+      z-index: 6;
+      pointer-events: none;
+      background: var(--powdered);
+    }
+    .check-stripe {
+      height: 256px; /* 4 rows × 64px */
+      background-image: repeating-conic-gradient(var(--kimchi) 0% 25%, var(--powdered) 0% 50%);
+      background-size: 64px 64px;
+      flex-shrink: 0;
+    }
+    @keyframes pulse-fade {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    /* Hero intro — logo + tagline overlay, fades in on load, out on scroll */
+    #hero-intro {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+    #hero-intro-logo {
+      position: absolute;
+      bottom: calc(50% + 190px);
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 220px;
+      height: auto;
+      opacity: 0;
+    }
+    #hero-intro-tagline {
+      position: absolute;
+      top: calc(50% + 185px);
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 280px;
+      height: auto;
+      opacity: 0;
+    }
+
+    /* Scroll label — wrap holds GSAP fade-in; inner keeps scroll-mechanic opacity control */
+    #scroll-label-wrap {
+      position: absolute;
+      top: calc(85% + 40px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 7;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #scroll-label {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      color: rgba(248,243,232,0.4);
+      text-transform: uppercase;
+      pointer-events: none;
+      animation: pulse-fade 2s ease-in-out infinite;
+    }
+
+    /* ── Sections paint above fixed hero layers ───────────────── */
+    #about, #services, #work, #contact, footer {
+      position: relative;
+      z-index: 10;
+    }
+
+    /* ── ABOUT ───────────────────────────────────────────────── */
+    #about { background: var(--powdered); }
+    #about-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 200px 40px;
+    }
+    #about-text {
+      font-family: var(--font);
+      font-size: clamp(28px, 4vw, 56px);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--liberty-blue);
+      text-transform: uppercase;
+      text-align: center;
+      max-width: 1100px;
+    }
+
+    /* ── SERVICES / WHAT WE DO ───────────────────────────────── */
+    #services {
+      background: var(--liberty-blue);
+      padding: 120px 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 64px;
+    }
+    .section-heading {
+      font-family: var(--font);
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 900;
+      color: var(--powdered);
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1;
+    }
+    #services-storefront { width: min(280px, 36vw); }
+    #services-storefront img { width: 100%; height: auto; }
+
+    /* BUILT FRESH DAILY tagline */
+    #process-tagline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+    #process-tagline img {
+      height: 36px;
+      width: auto;
+      max-width: none;
+    }
+
+    /* Process columns */
+    #services-columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 860px;
+      width: 100%;
+      border: 1px solid rgba(248,243,232,0.12);
+    }
+    .service-col {
+      padding: 40px 32px;
+      text-align: center;
+      border-right: 1px solid rgba(248,243,232,0.12);
+    }
+    .service-col:last-child { border-right: none; }
+    .service-num {
+      font-family: var(--font);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      color: rgba(248,243,232,0.25);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .service-col > img {
+      height: 50px;
+      width: auto;
+      max-width: none;
+      margin: 0 auto 16px;
+    }
+    .service-desc {
+      font-family: var(--font);
+      font-size: 20px;
+      font-weight: 700;
+      color: rgba(248,243,232,0.5);
+      letter-spacing: 0.06em;
+      line-height: 1.55;
+      text-transform: uppercase;
+    }
+
+    /* ── FEATURED WORK ───────────────────────────────────────── */
+    #work {
+      background: var(--charcoal);
+      padding: 120px 64px 30vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+    #work .section-heading { margin-bottom: 64px; }
+    #work-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 1400px;
+      width: 100%;
+    }
+    .work-card {
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      border-radius: 16px;
+      position: relative;
+      display: block;
+      text-decoration: none;
+    }
+    .work-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      max-width: none;
+      transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .work-card:hover img { transform: scale(1.03); }
+    }
+
+    /* ── SERVICES BOARD — pure CSS sticky ───────────────────── */
+    #board-spacer {
+      position: relative;
+      z-index: 1;
+      min-height: 300vh;
+      background: var(--liberty-blue);
+      margin-top: -100vh;
+      clear: both;
+    }
+    #board-sticky-inner {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #board-img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── CONTACT (interactive guest check form) ──────────────── */
+    #contact {
+      background: var(--liberty-blue);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      padding: 120px 48px;
+      text-align: center;
+    }
+    .check {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      aspect-ratio: 677 / 1200;
+      transform: rotate(-0.3deg);
+      box-shadow: 3px 5px 32px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    .check-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: fill;
+      display: block;
+    }
+    .check-header {
+      position: absolute;
+      top: 22%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85%;
+      pointer-events: none;
+    }
+    .lbl {
+      position: absolute;
+      left: 16.04%;
+      display: flex;
+      align-items: center;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .lbl img { height: 25px; width: auto; max-width: 130px; display: block; }
+    .fld {
+      position: absolute;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font);
+      font-size: clamp(12px, 3.5vw, 16px);
+      color: #1a2340;
+      padding: 0 6px;
+      transform: translateY(-50%);
+      height: 29px;
+      right: 3%;
+    }
+    .fld::placeholder { color: rgba(45,111,168,0.45); font-style: italic; }
+    .fld-select {
+      position: absolute;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font);
+      font-size: clamp(12px, 3.5vw, 16px);
+      color: rgba(45,111,168,0.45);
+      font-style: italic;
+      padding: 0 4px;
+      transform: translateY(-50%);
+      width: auto;
+      cursor: pointer;
+    }
+    .fld-select:valid, .fld-select.has-value { color: #1a2340; font-style: normal; }
+    .fld-select option { color: #1a2340; font-style: normal; background: #fff; }
+    .fld-textarea {
+      transform: none;
+      position: absolute;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font);
+      font-size: clamp(12px,3.5vw,16px);
+      color: #1a2340;
+      padding: 2px 6px;
+      resize: none;
+      left: 32%; right: 8%;
+    }
+    .fld-textarea::placeholder { color: rgba(45,111,168,0.45); font-style: italic; }
+    .check-submit {
+      position: absolute;
+      background: var(--kimchi);
+      color: var(--powdered);
+      border: none;
+      font-family: var(--font);
+      font-size: clamp(10px, 2.5vw, 13px);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 7px 18px;
+      cursor: pointer;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 24%;
+      transition: opacity 0.2s, transform 80ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .check-submit:hover { opacity: 0.85; }
+    .check-submit:active {
+      transform: translateX(-50%) scale(0.97);
+      transition: opacity 0.2s, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    /* Thank-you state: labels, fields and heading are swapped for the hand-lettered note */
+    .check-thanks {
+      display: none;
+      position: absolute;
+      top: 50.5%;
+      left: 50%;
+      width: 78%;
+      height: auto;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .check.is-sent .check-header,
+    .check.is-sent .lbl,
+    .check.is-sent .fld,
+    .check.is-sent .fld-select,
+    .check.is-sent .fld-textarea,
+    .check.is-sent .check-submit { display: none; }
+    .check.is-sent .check-thanks {
+      display: block;
+      animation: thanks-in 0.7s cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+    @keyframes thanks-in {
+      from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .check.is-sent .check-thanks { animation: none; }
+    }
+
+    /* ── BRANDS CAROUSEL ────────────────────────────────────── */
+    #brands {
+      background: #F8F3E8;
+      padding: 80px 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(13,24,44,0.08);
+    }
+    .brands-heading {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(13,24,44,0.5);
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .brands-track-wrapper { overflow: hidden; }
+    @keyframes scroll-brands {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(var(--scroll-width, -50%)); }
+    }
+    .brands-track {
+      display: flex;
+      align-items: center;
+      gap: 80px;
+      width: max-content;
+      animation: scroll-brands 24s linear infinite;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+    .brands-track:hover { animation-play-state: paused; }
+    .brand-item {
+      flex-shrink: 0;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .brand-item:hover { opacity: 1; }
+    }
+    .brand-item img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+    }
+    .black-logo {}
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      background: var(--charcoal);
+      border-top: 1px solid rgba(248,243,232,0.08);
+      padding: 60px 48px 36px;
+    }
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 48px;
+    }
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .footer-label {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: rgba(248,243,232,0.4);
+      margin: 0;
+    }
+    .footer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-nav a,
+    .footer-info a {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: rgba(248,243,232,0.75);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-nav a:hover,
+    .footer-info a:hover { color: var(--cream); }
+    .footer-social a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: rgba(248,243,232,0.75);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-social a:hover { color: var(--cream); }
+    .footer-info { margin: 0; }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(248,243,232,0.08);
+      padding-top: 24px;
+    }
+    footer p {
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: rgba(248,243,232,0.28);
+      text-transform: uppercase;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #reel-logo-sub { font-size: 12px; letter-spacing: 0.22em; margin-top: 16px; }
+      #site-nav { padding: 20px 24px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+
+      #services { padding: 80px 24px; gap: 48px; }
+      #services-storefront { width: min(200px, 50vw); }
+      #services-columns { grid-template-columns: 1fr; border: none; }
+      .service-col { border-right: none; border-bottom: 1px solid rgba(248,243,232,0.1); padding: 28px 0; }
+      .service-col:last-child { border-bottom: none; }
+      #process-tagline img { height: 24px; }
+      #process-tagline { gap: 16px; }
+
+      #work { padding: 80px 24px; }
+      #work-grid { grid-template-columns: 1fr; gap: 12px; }
+
+      #contact { padding: 60px 16px; gap: 24px; }
+      .check { max-width: 340px; }
+      .lbl img { height: 20px; }
+      .fld { font-size: 13px; height: 24px; }
+      .fld-select { font-size: 13px; }
+      .fld-textarea { font-size: 13px; }
+
+      footer { padding: 0; flex-direction: column; gap: 0; text-align: left; }
+    /* — FOOTER GRID ————————————————————————— */
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      padding: 60px 48px 40px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+    .footer-label {
+      font-family: var(--font);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      opacity: 0.4;
+      margin-bottom: 20px;
+    }
+    .footer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-nav a, .footer-info a {
+      font-family: var(--font);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: inherit;
+      text-decoration: none;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+    .footer-nav a:hover, .footer-info a:hover { opacity: 1; }
+    .footer-social { display: flex; gap: 16px; }
+    .footer-social a { opacity: 0.75; color: inherit; transition: opacity 0.2s; }
+    .footer-social a:hover { opacity: 1; }
+    .footer-info { font-family: var(--font); font-size: 12px; letter-spacing: 0.1em; opacity: 0.75; margin-bottom: 8px; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-family: var(--font);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      opacity: 0.35;
+    }
+
+      #about-inner { padding: 60px 24px 80px; }
+      #hero-wrapper { height: calc(3500px + 100vh); }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #site-nav { padding: 20px 32px; }
+      #about-inner { padding: 80px 40px 100px; }
+      #services { padding: 100px 40px; }
+      #work { padding: 100px 40px; }
+    }
+
+    /* ── PAGE LOADER ─────────────────────────────────────────── */
+    #site-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    #loader-logo {
+      width: 120px;
+      height: auto;
+      max-width: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .brands-track { animation: none; }
+      #scroll-label { animation: none; opacity: 0.4; }
+      #site-loader { display: none; }
+      #hero-intro-logo, #hero-intro-tagline, #scroll-label-wrap { opacity: 1; }
+    }
+  
+    /* ── SCROLL LAB (test page only) ─────────────────────────── */
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    #lab-panel {
+      position: fixed; left: 12px; bottom: 12px; z-index: 99999;
+      width: 250px; padding: 12px 14px; border-radius: 10px;
+      background: rgba(13,24,44,0.92); color: #F8F3E8;
+      font: 600 12px/1.45 'Barlow Condensed', Arial, sans-serif; letter-spacing: 0.04em;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+    }
+    #lab-panel b { display:block; letter-spacing:0.18em; font-size:11px; opacity:.7; margin-bottom:6px; }
+    #lab-panel a.preset {
+      display:block; padding:5px 8px; margin:3px 0; border-radius:6px; color:#F8F3E8;
+      background: rgba(248,243,232,0.08); text-decoration:none;
+    }
+    #lab-panel a.preset.on { background:#F24D00; }
+    #lab-panel .cur { margin-top:8px; opacity:.75; font-weight:500; }
+    #lab-panel button { margin-top:6px; background:none; border:1px solid rgba(248,243,232,.3); color:#F8F3E8; border-radius:6px; padding:3px 8px; cursor:pointer; font:inherit; }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE LOADER ───────────────────────────────────────────── -->
+<div id="site-loader" aria-hidden="true">
+  <img id="loader-logo" src="assets/spk-scenery-sub-mark-1-powdered-rgb.svg" alt="" width="120" height="120">
+</div>
+<script>
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const loader = document.getElementById('site-loader');
+  const img    = document.getElementById('loader-logo');
+  const srcs   = [
+    'assets/spk-scenery-sub-mark-1-powdered-rgb.svg',
+    'assets/spk-scenery-sub-mark-2-powdered-rgb.svg',
+    'assets/spk-scenery-sub-mark-3-powdered-rgb.svg',
+    'assets/spk-scenery-sub-mark-4-powdered-rgb.svg',
+    'assets/spk-scenery-sub-mark-5-powdered-rgb.svg',
+    'assets/spk-scenery-sub-mark-6-powdered-rgb.svg',
+    'assets/spk-scenery-sub-mark-7-powdered-rgb.svg',
+  ];
+  let frame = 0;
+
+  const tick = setInterval(() => {
+    frame += 1;
+    if (frame < srcs.length) {
+      img.src = srcs[frame];
+    } else {
+      clearInterval(tick);
+      loader.style.opacity = '0';
+      setTimeout(() => loader.remove(), 400);
+    }
+  }, 300);
+}());
+</script>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav id="site-nav">
+  <a class="nav-brand" href="#" aria-label="SPK Scenery home">
+    <img src="assets/Main-logo.svg" alt="SPK Scenery">
+  </a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#services">Services</a>
+    <a href="#contact" class="nav-cta">Contact</a>
+  </div>
+</nav>
+
+<!-- ── HERO — fixed layers ────────────────────────────────────── -->
+<video id="reel-video" autoplay muted loop playsinline>
+  <source src="assets/SPK_landing_reel_compressed.mp4" type="video/mp4">
+</video>
+<div id="window-hole" aria-hidden="true"></div>
+
+<!-- ── HERO — pinned scroll sequence ─────────────────────────── -->
+<div id="hero-wrapper">
+  <div id="hero-sticky">
+
+    <div id="hero-intro" aria-hidden="true">
+      <img id="hero-intro-logo" src="assets/SPK-landing-logo.svg" alt="SPK Scenery">
+      <img id="hero-intro-tagline" src="assets/BFD-landing-logo.svg" alt="Built Fresh Daily">
+    </div>
+
+    <div id="icon-group" aria-hidden="true">
+      <img src="assets/landing-storefront-logo.svg" alt="">
+    </div>
+
+    <div id="reel-logo" aria-hidden="true">
+      <div class="reel-logo-stack">
+        <img src="assets/Salt-Pepper-Ketchup-Logo2-landing.png" alt="SPK Scenery">
+        <p id="reel-logo-sub">Design &amp; Fabrication Studio</p>
+      </div>
+    </div>
+
+    <div id="hero-curtain">
+      <div class="check-stripe"></div>
+    </div>
+
+    <div id="scroll-label-wrap">
+      <div id="scroll-label" aria-hidden="true">Scroll Down</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ABOUT ──────────────────────────────────────────────────── -->
+<section id="about">
+  <div id="about-inner">
+    <p id="about-text">
+      We're a crew of designers, builders, and fabricators who take the impossible deadline and make it look easy. We have the NY hustle like no one else. Our team will bring all imaginations to life.
+    </p>
+  </div>
+</section>
+
+<!-- ── FEATURED WORK ──────────────────────────────────────────── -->
+<section id="work">
+  <h2 class="section-heading">Featured Work</h2>
+  <div id="work-grid">
+    <a class="work-card" href="ebenezer-comic-con.html">
+      <img src="assets/SPK-Ebenezer-Preview-015.jpg" alt="Ebenezer Comic Con" loading="lazy">
+    </a>
+    <a class="work-card" href="jordan-levis.html">
+      <img src="assets/jordanxlevis-thumbnail.jpg" alt="Jordan x Levi's" loading="lazy">
+    </a>
+    <a class="work-card" href="tyler-the-creator.html">
+      <img src="assets/Tyler-work-1.png" alt="Tyler The Creator" loading="lazy">
+    </a>
+    <a class="work-card" href="bruno-mars.html">
+      <img src="assets/Bruno-work-2.png" alt="Bruno Mars" loading="lazy">
+    </a>
+    <a class="work-card" href="lady-gaga.html">
+      <img src="assets/Gaga-work-3.png" alt="Lady Gaga" loading="lazy">
+    </a>
+    <a class="work-card" href="kanye-west.html">
+      <img src="assets/kanye-work-4.png" alt="Kanye West" loading="lazy">
+    </a>
+    <a class="work-card" href="fortnite.html">
+      <img src="assets/Fortnite-cover.png" alt="Fortnite" loading="lazy">
+    </a>
+    <a class="work-card" href="american-idol.html">
+      <img src="assets/american-idol-thumbnail.png" alt="American Idol" loading="lazy">
+    </a>
+    <a class="work-card" href="tyler-golf-le-fleur.html">
+      <img src="assets/Tyler-GLF-Thumbnail.jpg" alt="Tyler The Creator - Golf Le Fleur" loading="lazy">
+    </a>
+    <a class="work-card" href="tmobile-joshua-tree.html">
+      <img src="assets/Beyond-T-MOBILE-CASE-STUDIES-90.jpg" alt="T-Mobile x Joshua Tree" loading="lazy">
+    </a>
+  </div>
+</section>
+
+<!-- ── SERVICES / WHAT WE DO ──────────────────────────────────── -->
+<section id="services">
+  <h2 class="section-heading">What We Do</h2>
+
+  <div id="services-storefront">
+    <img id="services-illus" src="assets/storefront-logo.svg" alt="SPK Scenery storefront">
+  </div>
+
+  <div id="process-tagline">
+    <img src="assets/BUILT.svg" alt="Built">
+    <img src="assets/FRESH.svg" alt="Fresh">
+    <img src="assets/DAILY.svg" alt="Daily">
+  </div>
+
+  <div id="services-columns">
+    <div class="service-col">
+      <div class="service-num">01</div>
+      <img src="assets/DESIGN.svg" alt="Design">
+      <p class="service-desc">Napkin sketch to render, in days.</p>
+    </div>
+    <div class="service-col">
+      <div class="service-num">02</div>
+      <img src="assets/BUILD.svg" alt="Build">
+      <p class="service-desc">Cut, welded, and painted in-house.</p>
+    </div>
+    <div class="service-col">
+      <div class="service-num">03</div>
+      <img src="assets/INSTALL.svg" alt="Install">
+      <p class="service-desc">Up and lit before the clock runs out.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SERVICES BOARD — sticky centered, scrolls with spacer ─────── -->
+<div id="board-spacer">
+  <div id="board-sticky-inner">
+    <picture>
+      <source media="(max-width: 768px)" srcset="assets/menu-services-mobile.jpg">
+      <img id="board-img" src="assets/menu-services.jpg" alt="Our Services">
+    </picture>
+  </div>
+</div>
+
+<!-- ── CONTACT (interactive guest check form) ─────────────────── -->
+<section id="contact">
+  <h2 class="section-heading">Let's Build<br>Something</h2>
+
+  <form id="contact-form" class="check" action="https://formspree.io/f/mdegadey" method="POST">
+    <img class="check-bg" src="assets/SPKGuest-Check-Form-v2.png" alt="">
+    <img class="check-header" src="assets/label-heading.png" alt="What's your order?">
+
+    <div class="lbl" style="top:37.85%"><img src="assets/label-client_name.png" alt="Client Name"></div>
+    <input class="fld" name="client_name" type="text" placeholder="your name" style="top:37.85%;left:41.21%" required>
+
+    <div class="lbl" style="top:41.90%"><img src="assets/label-company.png" alt="Company"></div>
+    <input class="fld" name="company" type="text" placeholder="your company" style="top:41.90%;left:35.75%">
+
+    <div class="lbl" style="top:46.07%"><img src="assets/label-service.png" alt="Service"></div>
+    <select class="fld-select" name="service" style="top:46.07%;left:35.46%" required>
+      <option value="" disabled selected>type of service</option>
+      <option value="Stage Design">Stage Design</option>
+      <option value="Fabrication">Fabrication</option>
+      <option value="Event Production">Event Production</option>
+      <option value="Consultation">Consultation</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <div class="lbl" style="top:50.12%"><img src="assets/label-brief.png" alt="Brief"></div>
+    <textarea class="fld-textarea" name="brief" placeholder="describe your project" style="top:48.8%;height:62px;padding-top:0" required></textarea>
+
+    <div class="lbl" style="top:58.22%"><img src="assets/label-date_needed.png" alt="Date Needed"></div>
+    <input class="fld" name="date_needed" type="text" placeholder="mm / dd / yyyy" style="top:58.22%;left:42.75%">
+
+    <div class="lbl" style="top:62.39%"><img src="assets/label-email.png" alt="Email"></div>
+    <input class="fld" name="email" type="email" placeholder="your@email.com" style="top:62.39%;left:32.15%" required>
+
+    <button class="check-submit" type="submit">Send Order</button>
+
+    <img class="check-thanks" src="assets/ThanksForYourOrder.png" alt="Thanks for your order! We'll be in touch!">
+  </form>
+</section>
+
+<!-- ── BRANDS CAROUSEL ────────────────────────────────────────── -->
+<section id="brands" style="background: #F8F3E8;">
+  <p class="brands-heading">Brands We've Worked With</p>
+  <div class="brands-track-wrapper">
+    <div class="brands-track">
+      <!-- Set 1 -->
+      <div class="brand-item"><img src="assets/abc-logo.png" alt="ABC"></div>
+      <div class="brand-item"><img src="assets/amazon-logo.png" alt="Amazon"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/bet-logo.png" alt="BET"></div>
+      <div class="brand-item"><img src="assets/disney-logo.png" alt="Disney"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/google-logo.png" alt="Google"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/hbo-logo.png" alt="HBO"></div>
+      <div class="brand-item"><img src="assets/honda-logo.png" alt="Honda"></div>
+      <div class="brand-item"><img src="assets/hulu-logo.png" alt="Hulu"></div>
+      <div class="brand-item"><img src="assets/lacoste-logo.png" alt="Lacoste"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/Marvel-logo.png" alt="Marvel"></div>
+      <div class="brand-item"><img src="assets/mcdonalds-logo.png" alt="McDonald's"></div>
+      <div class="brand-item"><img src="assets/mercedes-logo.png" alt="Mercedes"></div>
+      <div class="brand-item"><img src="assets/Meta-logo.png" alt="Meta"></div>
+      <div class="brand-item"><img src="assets/netflix-logo.png" alt="Netflix"></div>
+      <div class="brand-item"><img src="assets/samsung-logo.png" alt="Samsung"></div>
+      <div class="brand-item"><img src="assets/skims-logo.png" alt="Skims"></div>
+      <div class="brand-item"><img src="assets/thom-browne-logo.png" alt="Thom Browne"></div>
+      <!-- Set 2 — duplicate for seamless loop -->
+      <div class="brand-item"><img src="assets/abc-logo.png" alt="ABC"></div>
+      <div class="brand-item"><img src="assets/amazon-logo.png" alt="Amazon"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/bet-logo.png" alt="BET"></div>
+      <div class="brand-item"><img src="assets/disney-logo.png" alt="Disney"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/google-logo.png" alt="Google"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/hbo-logo.png" alt="HBO"></div>
+      <div class="brand-item"><img src="assets/honda-logo.png" alt="Honda"></div>
+      <div class="brand-item"><img src="assets/hulu-logo.png" alt="Hulu"></div>
+      <div class="brand-item"><img src="assets/lacoste-logo.png" alt="Lacoste"></div>
+      <div class="brand-item"><img class="black-logo" src="assets/Marvel-logo.png" alt="Marvel"></div>
+      <div class="brand-item"><img src="assets/mcdonalds-logo.png" alt="McDonald's"></div>
+      <div class="brand-item"><img src="assets/mercedes-logo.png" alt="Mercedes"></div>
+      <div class="brand-item"><img src="assets/Meta-logo.png" alt="Meta"></div>
+      <div class="brand-item"><img src="assets/netflix-logo.png" alt="Netflix"></div>
+      <div class="brand-item"><img src="assets/samsung-logo.png" alt="Samsung"></div>
+      <div class="brand-item"><img src="assets/skims-logo.png" alt="Skims"></div>
+      <div class="brand-item"><img src="assets/thom-browne-logo.png" alt="Thom Browne"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <p class="footer-label">VISIT</p>
+      <nav class="footer-nav">
+        <a href="#about">ABOUT</a>
+        <a href="#work">WORK</a>
+        <a href="#services">SERVICES</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+    </div>
+    <div class="footer-col">
+      <p class="footer-label">SOCIAL</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/spkscenery" target="_blank" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8" fill="none"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+          </svg>
+          <span>SPKSCENERY</span>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <p class="footer-label">CONTACT</p>
+      <p class="footer-info"><a href="mailto:luisdiaz@spkscenery.com">LUISDIAZ@SPKSCENERY.COM</a></p>
+      <p class="footer-info"><a href="tel:+16317423952">(631) 742-3952</a></p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>SPK SCENERY</p>
+    <p>© 2026 SALT PEPPER KETCHUP. LOS ANGELES.</p>
+  </div>
+</footer>
+
+<div id="lab-panel">
+  <b>SCROLL LAB</b>
+  <a class="preset" data-p="lenis=0&scrub=4&range=8000" href="?lenis=0&scrub=4&range=8000">A · Current site</a>
+  <a class="preset" data-p="lenis=1&lerp=0.1&scrub=4&range=8000" href="?lenis=1&lerp=0.1&scrub=4&range=8000">B · Lenis only</a>
+  <a class="preset" data-p="lenis=1&lerp=0.1&scrub=1.5&range=8000" href="?lenis=1&lerp=0.1&scrub=1.5&range=8000">C · Lenis + faster scrub</a>
+  <a class="preset" data-p="lenis=1&lerp=0.1&scrub=1.2&range=5000" href="?lenis=1&lerp=0.1&scrub=1.2&range=5000">D · Lenis + shorter hero</a>
+  <a class="preset" data-p="lenis=1&lerp=0.07&scrub=1.5&range=6000" href="?lenis=1&lerp=0.07&scrub=1.5&range=6000">E · Extra smooth</a>
+  <div class="cur" id="lab-cur"></div>
+  <button type="button" id="lab-hide">hide</button>
+</div>
+<script>
+(function(){
+  var q = location.search.replace(/^\?/, '');
+  document.querySelectorAll('#lab-panel .preset').forEach(function(a){ if (a.dataset.p === q) a.classList.add('on'); });
+  var P = new URLSearchParams(location.search);
+  document.getElementById('lab-cur').textContent = q ? ('now: ' + q) : 'now: defaults (same as A)';
+  if (!q) document.querySelector('#lab-panel .preset').classList.add('on');
+  document.getElementById('lab-hide').onclick = function(){ document.getElementById('lab-panel').style.display = 'none'; };
+})();
+</script>
+
+<script>
+window.addEventListener('load', () => {
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.ticker.lagSmoothing(0);
+
+  const rm       = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  /* ── SCROLL LAB: settings come from the URL so presets can be compared without editing code ── */
+  const Q = new URLSearchParams(location.search);
+  const num = (k, d) => (Q.has(k) && Q.get(k) !== '' && !isNaN(+Q.get(k))) ? +Q.get(k) : d;
+  const LAB = {
+    lenis: Q.get('lenis') === '1',
+    lerp:  num('lerp', 0.1),
+    wheel: num('wheel', 1),
+    scrub: num('scrub', isMobile ? 1.5 : 4),
+    range: num('range', isMobile ? 3500 : 8000),
+  };
+  /* The hero wrapper's CSS height is hard-coded to 8000px / 3500px; keep it in step with the hero scroll length */
+  document.getElementById('hero-wrapper').style.height = 'calc(' + LAB.range + 'px + 100vh)';
+  let lenis = null;
+  if (LAB.lenis && window.Lenis && !rm) {
+    lenis = new Lenis({ lerp: LAB.lerp, wheelMultiplier: LAB.wheel, smoothWheel: true, anchors: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+    window.__lenis = lenis;
+  }
+  const norm = (v, lo, hi) => Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+  const lerp = (a, b, t)   => a + (b - a) * t;
+
+  /* ── HERO SCROLL / MASK MECHANIC — DO NOT MODIFY ─────────── */
+  const iconGroup  = document.getElementById('icon-group');
+  const windowHole = document.getElementById('window-hole');
+  const reelLogo   = document.getElementById('reel-logo');
+  const reelVideo  = document.getElementById('reel-video');
+  const curtain    = document.getElementById('hero-curtain');
+  const scrollLbl  = document.getElementById('scroll-label');
+
+  let CURTAIN_H = window.innerHeight * 0.4;
+  window.addEventListener('resize', () => { CURTAIN_H = window.innerHeight * 0.4; }, { passive: true });
+
+  const easeIO = gsap.parseEase('power2.inOut');
+
+
+  /*
+    Progress breakpoints (0 → 1):
+    P0  0.10  anticipation ends, scale begins
+    P2  0.45  scale done; icon + window-hole fade begins, reel logo begins
+    P3  0.92  fade done, reel logo fully visible; curtain begins
+  */
+  const P0 = 0.10, P2 = 0.45, P3 = 0.92;
+
+  /* Window pane as fraction of icon-group bounding rect.
+     Derived from SVG path M24.5 60.7 H67.3 L67.5 129.1 L25.7 129.5 in 93×141 viewBox:
+     left=26.3%, top=43.0%, right=72.6% (width=46.2%), bottom=91.6% (height=48.6%) */
+  const WIN_L = 0.263, WIN_T = 0.430, WIN_W = 0.462, WIN_H = 0.500;
+
+  ScrollTrigger.create({
+    trigger:    '#hero-wrapper',
+    start:      'top top',
+    end:        '+=' + LAB.range,
+    pin:        '#hero-sticky',
+    pinSpacing: false,
+    scrub:      LAB.scrub,
+    onUpdate(self) {
+      const p = self.progress;
+
+      /* Scroll label fades at very start */
+      scrollLbl.style.opacity = 1 - norm(p, 0, 0.12);
+
+      /* Icon scales 0.105 → 1.0 from P0 → P2; SVG renders at 1800px so we're always scaling down */
+      const scale = lerp(0.105, 1.0, easeIO(norm(p, P0, P2)));
+      iconGroup.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+      /* Position window-hole to match the glass pane in screen coordinates.
+         getBoundingClientRect() accounts for the current scale transform. */
+      const r = iconGroup.getBoundingClientRect();
+      windowHole.style.left   = (r.left + r.width  * WIN_L) + 'px';
+      windowHole.style.top    = (r.top  + r.height * WIN_T) + 'px';
+      windowHole.style.width  = (r.width  * WIN_W) + 'px';
+      windowHole.style.height = (r.height * WIN_H) + 'px';
+
+      /* After zoom: icon + window-hole (box-shadow mask) both fade 1 → 0, revealing full video */
+      const fade = p >= P2 ? 1 - norm(p, P2, 0.72) : 1;
+      iconGroup.style.opacity  = fade;
+      windowHole.style.opacity = fade;
+
+      /* Reel logo fades in P2 → P3 */
+      reelLogo.style.opacity = norm(p, 0.65, 0.78);
+
+      /* Curtain rises P3 → 1; reel video fades out simultaneously */
+      const curtainT = norm(p, P3, 1);
+      curtain.style.height    = curtainT * CURTAIN_H + 'px';
+      reelVideo.style.opacity = 1 - curtainT;
+    },
+  });
+  /* ── END HERO MECHANIC ────────────────────────────────────── */
+
+  /* ── HERO PAGE-LOAD INTRO + SCROLL FADE-OUT ──────────────── */
+  const introScrollRange = LAB.range;
+  const loadedScrolled = window.scrollY > 10;  /* browser restored a scrolled position on reload */
+  if (!rm && loadedScrolled) {
+    gsap.set('#scroll-label-wrap', { opacity: 1 });
+  }
+  if (!rm && !loadedScrolled) {
+    gsap.timeline({ delay: 0.5 })
+      .fromTo('#hero-intro-logo',
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+      )
+      .fromTo('#hero-intro-tagline',
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
+        '+=0.3'
+      )
+      .fromTo('#scroll-label-wrap',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.6, ease: 'power2.out' },
+        '+=0.5'
+      );
+  }
+  if (!rm) {
+    const scrollRange = introScrollRange;
+    gsap.fromTo(['#hero-intro-logo', '#hero-intro-tagline'], { opacity: 1 }, {
+      opacity: 0,
+      ease: 'none',
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: '#hero-wrapper',
+        start: 'top+=' + (scrollRange * 0.03) + 'px top',
+        end:   'top+=' + (scrollRange * 0.08) + 'px top',
+        scrub: true,
+      },
+    });
+  }
+  /* ── END HERO INTRO ────────────────────────────────────────── */
+
+  /* ── NAV VISIBILITY + COLOR ──────────────────────────────── */
+  const nav = document.getElementById('site-nav');
+
+  // Reveal nav once ~65% of the hero wrapper has scrolled past — scales with viewport height
+  ScrollTrigger.create({
+    trigger: '#hero-wrapper',
+    start:   'top+=65% top',
+    onEnter:     () => nav.classList.add('nav-visible'),
+    onLeaveBack: () => nav.classList.remove('nav-visible'),
+  });
+
+  const colorObs = new IntersectionObserver(
+    ([entry]) => nav.classList.toggle('nav-light', entry.isIntersecting),
+    { rootMargin: `0px 0px -${window.innerHeight - 80}px 0px`, threshold: 0 }
+  );
+  colorObs.observe(document.getElementById('about'));
+
+  /* ── SCROLL REVEAL ANIMATIONS ─────────────────────────────── */
+  const ST   = { toggleActions: 'play none none none' };
+  const revY = rm ? 0 : (isMobile ? 20 : 40);
+
+  /* About */
+  gsap.from('#about-text', {
+    opacity: 0, y: revY, duration: isMobile ? 0.5 : 0.9, ease: 'power2.out',
+    scrollTrigger: { trigger: '#about-text', start: 'top 85%', ...ST },
+  });
+
+  /* Services heading */
+  gsap.from('#services .section-heading', {
+    opacity: 0, y: revY, duration: isMobile ? 0.5 : 0.8, ease: 'power2.out',
+    scrollTrigger: { trigger: '#services', start: 'top 85%', ...ST },
+  });
+
+  /* Storefront illustration — scrub scale+fade */
+  gsap.from('#services-illus', {
+    opacity: 0, scale: rm ? 1 : 0.92, ease: 'power2.out',
+    scrollTrigger: { trigger: '#services-storefront', start: 'top 85%', end: 'top 20%', scrub: true },
+  });
+
+  /* BUILT FRESH DAILY — stagger left to right */
+  gsap.from('#process-tagline img', {
+    opacity: 0, x: rm ? 0 : -12, duration: isMobile ? 0.5 : 0.6, ease: 'power2.out', stagger: rm ? 0 : 0.12,
+    scrollTrigger: { trigger: '#process-tagline', start: 'top 85%', ...ST },
+  });
+
+  /* Process columns — stagger left to right */
+  gsap.from('.service-col', {
+    opacity: 0, y: rm ? 0 : 32, duration: isMobile ? 0.5 : 0.7, ease: 'power2.out', stagger: rm ? 0 : 0.15,
+    scrollTrigger: { trigger: '#services-columns', start: 'top 85%', ...ST },
+  });
+
+  /* Featured work heading */
+  gsap.from('#work .section-heading', {
+    opacity: 0, y: revY, duration: isMobile ? 0.5 : 0.8, ease: 'power2.out',
+    scrollTrigger: { trigger: '#work', start: 'top 85%', ...ST },
+  });
+
+  /* Featured work images — scale up + fade, staggered */
+  gsap.from('.work-card', {
+    opacity: 0, scale: rm ? 1 : 0.95, y: rm ? 0 : 24, duration: isMobile ? 0.5 : 0.75, ease: 'power2.out',
+    stagger: rm ? 0 : (isMobile ? 0.08 : 0.15),
+    scrollTrigger: { trigger: '#work-grid', start: 'top 85%', ...ST },
+  });
+
+  /* Contact */
+  gsap.from(['#contact .section-heading', '#contact-form'], {
+    opacity: 0, y: revY, duration: isMobile ? 0.5 : 0.75, ease: 'power2.out', stagger: rm ? 0 : 0.15,
+    scrollTrigger: { trigger: '#contact', start: 'top 85%', ...ST },
+  });
+
+  /* ── SCROLL DOWN label fade ──────────────────────────────── */
+  gsap.to(scrollLbl, {
+    opacity: 0,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero-wrapper',
+      start: 'top+=400 top',
+      end:   'top+=1200 top',
+      scrub: true,
+    },
+  });
+
+  ScrollTrigger.refresh();
+});
+
+/* ── CONTACT FORM ────────────────────────────────────────────── */
+(function() {
+  var form = document.getElementById('contact-form');
+  if (!form) return;
+  var sel = form.querySelector('.fld-select');
+  if (sel) {
+    sel.addEventListener('change', function() {
+      this.classList.toggle('has-value', this.value !== '');
+    });
+  }
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var data = new FormData(form);
+    fetch(form.action, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(r) {
+      if (r.ok) {
+        form.classList.add('is-sent');
+      } else {
+        return r.json().then(function(d) {
+          alert(d.errors ? d.errors.map(function(e){return e.message}).join(', ') : 'Something went wrong. Try emailing hello@spkscenery.com');
+        });
+      }
+    }).catch(function() {
+      alert('Network error. Try emailing hello@spkscenery.com');
+    });
+  });
+})();
+
+</script>
+<script>
+  window.addEventListener('load', () => {
+    if (location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 300);
+    }
+  });
+</script>
+<script>
+(function() {
+  var track = document.querySelector('.brands-track');
+  if (!track) return;
+  var items = Array.from(track.querySelectorAll('.brand-item'));
+  var half = Math.floor(items.length / 2);
+  // Remove set 2 from HTML — we'll clone set 1 via JS
+  items.slice(half).forEach(function(el) { el.remove(); });
+  // Clone set 1
+  var set1 = Array.from(track.querySelectorAll('.brand-item'));
+  set1.forEach(function(el) {
+    track.appendChild(el.cloneNode(true));
+  });
+  // Once images load, set exact pixel width
+  window.addEventListener('load', function() {
+    var w = set1.reduce(function(acc, el) { return acc + el.offsetWidth; }, 0);
+    var gap = 80 * (set1.length);
+    var total = w + gap;
+    track.style.setProperty('--scroll-width', '-' + total + 'px');
+    track.style.animation = 'none';
+    track.offsetHeight; // reflow
+    track.style.animation = '';
+  });
+})();
+</script>
+</body>
+</html>
