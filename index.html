@@ -153,6 +153,22 @@
       max-width: none;
       object-fit: contain;
     }
+    .reel-logo-stack { position: relative; }
+    #reel-logo-sub {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 22px;
+      white-space: nowrap;
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--powdered);
+      text-shadow: 0 1px 14px rgba(0,0,0,0.55);
+    }
 
     /* Curtain — rises from bottom; checkerboard leads, cream fills body */
     #hero-curtain {
@@ -644,6 +660,7 @@
 
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 768px) {
+      #reel-logo-sub { font-size: 12px; letter-spacing: 0.22em; margin-top: 16px; }
       #site-nav { padding: 20px 24px; }
       .nav-links a:not(.nav-cta) { display: none; }
 
@@ -817,7 +834,10 @@
     </div>
 
     <div id="reel-logo" aria-hidden="true">
-      <img src="assets/Salt-Pepper-Ketchup-Logo2-landing.png" alt="SPK Scenery">
+      <div class="reel-logo-stack">
+        <img src="assets/Salt-Pepper-Ketchup-Logo2-landing.png" alt="SPK Scenery">
+        <p id="reel-logo-sub">Design &amp; Fabrication Studio</p>
+      </div>
     </div>
 
     <div id="hero-curtain">
@@ -1120,7 +1140,12 @@ window.addEventListener('load', () => {
   /* ── END HERO MECHANIC ────────────────────────────────────── */
 
   /* ── HERO PAGE-LOAD INTRO + SCROLL FADE-OUT ──────────────── */
-  if (!rm) {
+  const introScrollRange = isMobile ? 3500 : 8000;
+  const loadedScrolled = window.scrollY > 10;  /* browser restored a scrolled position on reload */
+  if (!rm && loadedScrolled) {
+    gsap.set('#scroll-label-wrap', { opacity: 1 });
+  }
+  if (!rm && !loadedScrolled) {
     gsap.timeline({ delay: 0.5 })
       .fromTo('#hero-intro-logo',
         { opacity: 0, y: -20 },
@@ -1136,11 +1161,13 @@ window.addEventListener('load', () => {
         { opacity: 1, duration: 0.6, ease: 'power2.out' },
         '+=0.5'
       );
-
-    const scrollRange = isMobile ? 3500 : 8000;
-    gsap.to(['#hero-intro-logo', '#hero-intro-tagline'], {
+  }
+  if (!rm) {
+    const scrollRange = introScrollRange;
+    gsap.fromTo(['#hero-intro-logo', '#hero-intro-tagline'], { opacity: 1 }, {
       opacity: 0,
       ease: 'none',
+      immediateRender: false,
       scrollTrigger: {
         trigger: '#hero-wrapper',
         start: 'top+=' + (scrollRange * 0.03) + 'px top',
