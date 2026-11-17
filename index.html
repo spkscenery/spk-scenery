@@ -11,6 +11,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.2.3/dist/lenis.min.js" defer></script>
 
   <style>
     :root {
@@ -107,7 +108,7 @@
     #hero-wrapper {
       position: relative;
       width: 100%;
-      height: calc(8000px + 100vh);
+      height: calc(5000px + 100vh);
     }
     #hero-sticky {
       position: sticky;
@@ -756,6 +757,11 @@
       max-width: none;
     }
 
+    /* Lenis smooth scroll (required rules) */
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-stopped { overflow: hidden; }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .brands-track { animation: none; }
@@ -1068,6 +1074,13 @@ window.addEventListener('load', () => {
 
   const rm       = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  /* Smooth scroll (Lenis) — wheel/trackpad only; touch stays native. Feeds ScrollTrigger each frame. */
+  if (window.Lenis && !rm) {
+    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, anchors: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+  }
   const norm = (v, lo, hi) => Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
   const lerp = (a, b, t)   => a + (b - a) * t;
 
@@ -1101,10 +1114,10 @@ window.addEventListener('load', () => {
   ScrollTrigger.create({
     trigger:    '#hero-wrapper',
     start:      'top top',
-    end:        isMobile ? '+=3500' : '+=8000',
+    end:        isMobile ? '+=3500' : '+=5000',
     pin:        '#hero-sticky',
     pinSpacing: false,
-    scrub:      isMobile ? 1.5 : 4,
+    scrub:      isMobile ? 1.5 : 1.2,
     onUpdate(self) {
       const p = self.progress;
 
@@ -1140,7 +1153,7 @@ window.addEventListener('load', () => {
   /* ── END HERO MECHANIC ────────────────────────────────────── */
 
   /* ── HERO PAGE-LOAD INTRO + SCROLL FADE-OUT ──────────────── */
-  const introScrollRange = isMobile ? 3500 : 8000;
+  const introScrollRange = isMobile ? 3500 : 5000;
   const loadedScrolled = window.scrollY > 10;  /* browser restored a scrolled position on reload */
   if (!rm && loadedScrolled) {
     gsap.set('#scroll-label-wrap', { opacity: 1 });
