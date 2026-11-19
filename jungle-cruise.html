@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>SPK Scenery — Jungle Cruise</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --liberty-blue: #0D182C;
+      --charcoal:     #1A1A1C;
+      --powdered:     #F8F3E8;
+      --kimchi:       #F24D00;
+      --sapphire:     #2D71E0;
+      --biltmore-buff:#E5CC9F;
+      --font: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html  { scroll-behavior: smooth; }
+    body  { background: var(--charcoal); color: var(--powdered); overflow-x: hidden; }
+    img   { display: block; }
+    a     { text-decoration: none; }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    #site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+    }
+    .nav-brand img {
+      height: 48px;
+      width: auto;
+      max-width: none;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--powdered);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--kimchi); }
+    .nav-cta {
+      background: var(--kimchi) !important;
+      color: var(--powdered) !important;
+      padding: 10px 24px;
+      transition: opacity 0.2s, transform 80ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .nav-cta:hover { opacity: 0.85; }
+    .nav-cta:active {
+      transform: scale(0.97);
+      transition: opacity 0.2s, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    /* ── HERO ─────────────────────────────────────────────────── */
+    #hero-wrapper {
+      position: relative;
+      height: calc(100vh + 600px);
+    }
+
+    #hero-sticky {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #hero-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(13, 24, 44, 0.35);
+      z-index: 1;
+    }
+
+    #hero-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      text-align: center;
+      pointer-events: none;
+    }
+    #hero-text .hero-title {
+      font-family: var(--font);
+      font-size: clamp(36px, 6vw, 96px);
+      font-weight: 900;
+      line-height: 1.02;
+      text-transform: uppercase;
+      color: var(--powdered);
+      max-width: 92vw;
+      margin: 0 auto;
+      text-wrap: balance;
+    }
+    #hero-text .hero-sub {
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(248,243,232,0.55);
+      margin-top: 14px;
+    }
+
+    /* Credits panel rides up from bottom */
+    #credits-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      background: var(--powdered);
+      transform: translateY(100%);
+    }
+
+    /* ── CREDITS CONTENT ─────────────────────────────────────── */
+    .credits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(13,24,44,0.15);
+      border-bottom: 1px solid rgba(13,24,44,0.1);
+    }
+    .credit-col {
+      padding: 40px 48px;
+      border-right: 1px solid rgba(13,24,44,0.1);
+    }
+    .credit-col:last-child { border-right: none; }
+    .credit-label {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(13,24,44,0.4);
+      margin-bottom: 16px;
+    }
+    .credit-client-name {
+      font-family: var(--font);
+      font-size: clamp(28px, 3.5vw, 48px);
+      font-weight: 900;
+      line-height: 1.05;
+      text-transform: uppercase;
+      color: var(--liberty-blue);
+    }
+    .credit-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .credit-tag {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--liberty-blue);
+      border: 1px solid rgba(13,24,44,0.3);
+      border-radius: 999px;
+      padding: 6px 16px;
+    }
+    .credit-summary {
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.6;
+      color: rgba(13,24,44,0.65);
+      max-width: 38ch;
+    }
+
+    /* Budget row */
+    .budget-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .budget-col {
+      padding: 22px 48px;
+      border-right: 1px solid rgba(13,24,44,0.1);
+    }
+    .budget-col:last-child { border-right: none; }
+    .budget-label {
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(13,24,44,0.4);
+      margin-bottom: 10px;
+    }
+    .budget-scale {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .budget-tier {
+      font-family: var(--font);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: rgba(13,24,44,0.2);
+    }
+    .budget-tier.active {
+      color: var(--liberty-blue);
+      font-size: 26px;
+    }
+    .budget-tier-sep {
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(13,24,44,0.15);
+    }
+
+    /* ── GALLERY ─────────────────────────────────────────────── */
+    #gallery {
+      position: relative;
+      z-index: 10;
+      background: var(--charcoal);
+    }
+
+    .img-full {
+      width: 100vw;
+      height: 80vh;
+      overflow: hidden;
+    }
+    .img-full img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      max-width: none;
+    }
+
+    .img-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 60vh;
+    }
+    .img-pair > div {
+      overflow: hidden;
+    }
+    .img-pair img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      max-width: none;
+    }
+
+    .img-trio {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      height: 50vh;
+    }
+    .img-trio > div {
+      overflow: hidden;
+    }
+    .img-trio img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      max-width: none;
+    }
+
+    /* Extended 3-col grid for BrunoMars-1 through 21 */
+    .img-grid-many {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .img-grid-many > div {
+      height: 40vh;
+      overflow: hidden;
+    }
+    .img-grid-many img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      max-width: none;
+    }
+
+    /* ── NEXT PROJECT ─────────────────────────────────────────── */
+    #next-project {
+      display: block;
+      width: 100%;
+      background: var(--liberty-blue);
+      padding: 100px 64px;
+      text-align: center;
+      border-top: 1px solid rgba(248,243,232,0.06);
+      transition: background-color 0.3s;
+    }
+    .next-label {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(248,243,232,0.4);
+      margin-bottom: 20px;
+    }
+    .next-name {
+      font-family: var(--font);
+      font-size: clamp(52px, 8vw, 112px);
+      font-weight: 900;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--powdered);
+      transition: color 0.2s;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      #next-project:hover { background-color: #111e35; }
+      #next-project:hover .next-name { color: var(--biltmore-buff); }
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #site-nav { padding: 20px 24px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+
+      .credits-grid { grid-template-columns: 1fr; }
+      .credit-col {
+        border-right: none;
+        border-bottom: 1px solid rgba(13,24,44,0.1);
+        padding: 28px 24px;
+      }
+      .credit-col:last-child { border-bottom: none; }
+
+      .budget-row { grid-template-columns: 1fr; }
+      .budget-col {
+        border-right: none;
+        border-bottom: 1px solid rgba(13,24,44,0.1);
+        padding: 18px 24px;
+      }
+      .budget-col:last-child { border-bottom: none; }
+
+      .img-pair { grid-template-columns: 1fr; height: auto; }
+      .img-pair > div { height: 50vw; }
+
+      .img-trio { grid-template-columns: 1fr; height: auto; }
+      .img-trio > div { height: 50vw; }
+
+      .img-grid-many { grid-template-columns: 1fr; }
+      .img-grid-many > div { height: 50vw; }
+
+      #next-project { padding: 72px 24px; }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #site-nav { padding: 20px 32px; }
+      .credit-col { padding: 32px; }
+      .budget-col { padding: 18px 32px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────────────────────── -->
+<nav id="site-nav">
+  <a class="nav-brand" href="index.html" aria-label="SPK Scenery home">
+    <img src="assets/Main-logo.svg" alt="SPK Scenery">
+  </a>
+  <div class="nav-links">
+    <a href="index.html#about">About</a>
+    <a href="index.html#work">Work</a>
+    <a href="index.html#services">Services</a>
+    <a href="index.html#contact" class="nav-cta">Contact</a>
+  </div>
+</nav>
+
+<!-- ── HERO + CREDITS CURTAIN ────────────────────────────────── -->
+<div id="hero-wrapper">
+  <div id="hero-sticky">
+
+    <video id="hero-video" autoplay muted loop playsinline>
+      <source src="assets/JungleCruise-reel.mp4" type="video/mp4">
+    </video>
+
+    <div id="hero-overlay"></div>
+
+    <div id="hero-text">
+      <p class="hero-title">Jungle Cruise</p>
+      <p class="hero-sub">Stage Design / Fabrication</p>
+    </div>
+
+    <div id="credits-panel">
+      <div class="credits-grid">
+
+        <div class="credit-col">
+          <p class="credit-label">Client</p>
+          <p class="credit-client-name">Jungle Cruise</p>
+        </div>
+
+        <div class="credit-col">
+          <p class="credit-label">Services</p>
+          <div class="credit-tags">
+            <span class="credit-tag">Stage Design</span>
+            <span class="credit-tag">Fabrication</span>
+            <span class="credit-tag">Installation</span>
+          </div>
+        </div>
+
+        <div class="credit-col">
+          <p class="credit-label">Project Summary</p>
+          <p class="credit-summary">Set production for Jungle Cruise.</p>
+        </div>
+
+      </div>
+
+      <div class="budget-row">
+        <div class="budget-col">
+          <p class="budget-label">Budget</p>
+          <div class="budget-scale">
+            <span class="budget-tier">$</span>
+            <span class="budget-tier-sep">/</span>
+            <span class="budget-tier">$$</span>
+            <span class="budget-tier-sep">/</span>
+            <span class="budget-tier active">$$$</span>
+          </div>
+        </div>
+        <div class="budget-col"></div>
+        <div class="budget-col"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── GALLERY ────────────────────────────────────────────────── -->
+<section id="gallery">
+
+  <div class="img-pair" id="g12">
+    <div><img src="assets/JungleCruise-1.jpg" alt="Jungle Cruise"></div>
+    <div><img src="assets/JungleCruise-2.jpg" alt="Jungle Cruise"></div>
+  </div>
+
+  <div class="img-pair" id="g34">
+    <div><img src="assets/JungleCruise-3.jpg" alt="Jungle Cruise"></div>
+    <div><img src="assets/JungleCruise-4.jpg" alt="Jungle Cruise"></div>
+  </div>
+
+  <div class="img-pair" id="g56">
+    <div><img src="assets/JungleCruise-5.jpg" alt="Jungle Cruise"></div>
+    <div><img src="assets/JungleCruise-6.jpg" alt="Jungle Cruise"></div>
+  </div>
+
+</section>
+
+<!-- ── NEXT PROJECT ───────────────────────────────────────────── -->
+<a id="next-project" href="lady-gaga.html">
+  <p class="next-label">Next Project →</p>
+  <p class="next-name">Lady Gaga</p>
+</a>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  gsap.registerPlugin(ScrollTrigger);
+
+  const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── CREDITS CURTAIN ──────────────────────────────────────── */
+  gsap.to('#credits-panel', {
+    yPercent: -100,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero-wrapper',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1,
+      pin: '#hero-sticky',
+      pinSpacing: false,
+    },
+  });
+
+  /* ── GALLERY FADE-INS ─────────────────────────────────────── */
+  const ST = { start: 'top 88%', toggleActions: 'play none none none' };
+
+  gsap.from('#g12 > div', {
+    opacity: 0, y: rm ? 0 : 30, duration: 0.85, ease: 'power2.out', stagger: rm ? 0 : 0.12,
+    scrollTrigger: { trigger: '#g12', ...ST },
+  });
+
+  gsap.from('#g34 > div', {
+    opacity: 0, y: rm ? 0 : 30, duration: 0.85, ease: 'power2.out', stagger: rm ? 0 : 0.12,
+    scrollTrigger: { trigger: '#g34', ...ST },
+  });
+
+  gsap.from('#g56 > div', {
+    opacity: 0, y: rm ? 0 : 30, duration: 0.85, ease: 'power2.out', stagger: rm ? 0 : 0.12,
+    scrollTrigger: { trigger: '#g56', ...ST },
+  });
+
+  ScrollTrigger.refresh();
+});
+</script>
+</body>
+</html>
